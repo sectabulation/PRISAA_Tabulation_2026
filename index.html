@@ -48,7 +48,7 @@ header{background:#0b0b0b;color:#fff;border-bottom:6px solid var(--acc)}
 .p3 .blk{height:clamp(56px,8vw,86px);background:#2b2b2b;color:#fff}
 .podEmpty{text-align:center;color:#bbb;padding:30px 0 34px;font-size:15px}
 .medal{display:inline-block;vertical-align:middle;overflow:visible;flex:none;width:30px}
-.medal.zero{filter:grayscale(1);opacity:.25}.medal.zero .spk{display:none}
+.medal.zero{filter:grayscale(1);opacity:.25}.medal.zero .spk{display:none}.medal.f .spk{display:none}
 .mc{display:inline-flex;flex-direction:column;align-items:center;gap:2px}.mc em{font:800 clamp(16px,2vw,22px)/1 "Barlow Condensed",sans-serif;font-style:normal}.mc.z em{opacity:.35}.pod .mc em{font-size:15px;color:#fff}
 .spk{transform-box:fill-box;transform-origin:center;animation:twinkle 2.6s ease-in-out infinite;opacity:0}
 .spk.d1{animation-delay:.9s}.spk.d2{animation-delay:1.7s}
@@ -90,14 +90,14 @@ main{padding:24px 0 60px}
 .sch b{display:block;font:700 clamp(20px,2.6vw,30px)/1.1 "Barlow Condensed",sans-serif}
 .sch span{color:var(--mut);font-size:13px;display:block}
 .md{display:inline-block;width:22px;height:22px;border-radius:50%;vertical-align:middle;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.45)}
-.md.g{background:var(--gold)}.md.s{background:var(--silver)}.md.b{background:var(--bronze)}
+.md.g{background:var(--gold)}.md.s{background:var(--silver)}.md.b{background:var(--bronze)}.md.f{background:#808080}
 .meta{display:flex;gap:18px;flex-wrap:wrap;color:var(--mut);font-size:14px;margin:14px 0 0}
 .meta strong{color:var(--ink)}
 .bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:6px;max-width:420px}.bar i{display:block;height:100%;background:var(--acc)}
 h2{font:800 30px/1.1 "Barlow Condensed",sans-serif;margin:0 0 6px}
 .sport{margin-top:26px}
 .sport h3{font:700 22px/1.2 "Barlow Condensed",sans-serif;margin:0 0 8px;padding-bottom:6px;border-bottom:3px solid var(--acc)}
-.ev{display:grid;grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,1fr));gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.ev{display:grid;grid-template-columns:minmax(0,1.3fr) repeat(4,minmax(0,1fr));gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 .ev .nm{font-weight:600}.ev .nm small{display:block;color:var(--mut);font-weight:400;font-size:13px}
 .pl{display:flex;align-items:center;gap:8px;font-size:15px}
 .pl img{width:28px;height:28px;border-radius:50%;background:#fff;object-fit:contain;flex:none}
@@ -114,7 +114,7 @@ textarea{width:100%;min-height:120px;font:13px/1.4 ui-monospace,monospace;paddin
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--acc);color:#0b0b0b;font-weight:600;padding:10px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.on{opacity:1}
 @media(prefers-reduced-motion:reduce){.toast{transition:none}}
-@media(max-width:700px){.ev{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.ev .nm{grid-column:1/-1}.board th.hide,.board td.hide{display:none}.board td.num{width:auto}}
+@media(max-width:700px){.ev{grid-template-columns:repeat(2,minmax(0,1fr))}.ev .nm{grid-column:1/-1}.board th.hide,.board td.hide{display:none}.board td.num{width:auto}}
 @media(max-width:420px){.ev{grid-template-columns:minmax(0,1fr)}.sch span{display:none}}
 body.proj nav,body.proj .status,body.proj #tallyExtra,body.proj .top .sub{display:none}body.proj main{padding-top:2vh}
 body.proj .board td{padding:2.2vh 10px}body.proj .board td.rk{font-size:min(9vh,80px)}body.proj .board td.num .medal{width:min(10vh,90px)}
@@ -127,13 +127,13 @@ body.proj .sch img{width:min(12vh,110px);height:min(12vh,110px)}body.proj .sch b
     <div class="grow brand"><span class="crest"><span class="lg"><img id="plogo" alt="PRISAA logo"></span><span id="psp"></span></span><div><h1>PRISAA <em>Medal Tally</em></h1><div class="sub" id="sub">SURIGAO DEL NORTE MEET; OFFICIAL MEDAL STANDINGS</div></div></div>
     <div class="status"><span class="dot" id="dot"></span><span id="stat">Connecting…</span></div>
   </div>
-  <div id="podium"></div>
+  <div id="podium" hidden></div>
   <nav id="nav" style="margin-top:14px"><a href="#tally">Standings</a><a href="#results">Results by event</a><a href="#admin">Admin</a></nav>
 </div></header>
 
 <main class="wrap">
   <section class="view" id="v-tally">
-    <table class="board"><thead><tr><th>Rank</th><th class="l">School</th><th id="hg"></th><th id="hs"></th><th id="hb"></th><th>Total</th></tr></thead><tbody id="board"></tbody></table>
+    <table class="board"><thead><tr><th>Rank</th><th class="l">School</th><th id="hg"></th><th id="hs"></th><th id="hb"></th><th id="hf"></th><th>Total</th></tr></thead><tbody id="board"></tbody></table>
     <div id="tallyExtra">
       <div class="meta"><span><strong id="done">0</strong> of <strong id="all">0</strong> events decided</span><span>Ranked by gold, then silver, then bronze</span><span id="upd"></span></div>
       <div class="bar"><i id="prog" style="width:0"></i></div>
@@ -163,6 +163,7 @@ body.proj .sch img{width:min(12vh,110px);height:min(12vh,110px)}body.proj .sch b
     <div class="adminHead"><h2>Admin · enter medal winners</h2><div class="tools" style="margin:0"><button id="chgBtn">Change log-in</button><button id="outBtn">Log out</button></div></div>
     <div class="note" id="adminNote">Pick the gold, silver and bronze school for each event. Changes save as you pick and update the standings for everyone.</div>
     <div class="tools">
+      <button id="podToggle">Show podium</button>
       <button id="expBtn">Export / import data</button>
       <button id="resetBtn">Clear all results</button>
     </div>
@@ -215,20 +216,20 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const toast=m=>{const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2200)};
 const valid=id=>id&&S[id]?id:"";
 
-function clean(raw){const o={};if(raw&&typeof raw==="object")for(const e of EVENTS){const r=raw[e.id];if(r&&typeof r==="object"){const x={g:valid(r.g),s:valid(r.s),b:valid(r.b)};if(x.g||x.s||x.b)o[e.id]=x}}return o}
+function clean(raw){const o={};if(raw&&typeof raw==="object")for(const e of EVENTS){const r=raw[e.id];if(r&&typeof r==="object"){const x={g:valid(r.g),s:valid(r.s),b:valid(r.b),f:valid(r.f)};if(x.g||x.s||x.b||x.f)o[e.id]=x}}return o}
 
 function tally(){
-  const t=Object.fromEntries(SCHOOLS.map(s=>[s.id,{g:0,s:0,b:0}]));
-  for(const e of EVENTS){const r=R[e.id];if(!r)continue;for(const k of["g","s","b"])if(r[k])t[r[k]][k]++}
-  const rows=SCHOOLS.map(s=>({...s,...t[s.id],tot:t[s.id].g+t[s.id].s+t[s.id].b}));
-  rows.sort((a,b)=>b.g-a.g||b.s-a.s||b.b-a.b||a.short.localeCompare(b.short));
-  rows.forEach((r,i)=>{const p=rows[i-1];r.rank=p&&p.g===r.g&&p.s===r.s&&p.b===r.b?p.rank:i+1});
+  const t=Object.fromEntries(SCHOOLS.map(s=>[s.id,{g:0,s:0,b:0,f:0}]));
+  for(const e of EVENTS){const r=R[e.id];if(!r)continue;for(const k of["g","s","b","f"])if(r[k])t[r[k]][k]++}
+  const rows=SCHOOLS.map(s=>({...s,...t[s.id],tot:t[s.id].g+t[s.id].s+t[s.id].b+t[s.id].f}));
+  rows.sort((a,b)=>b.g-a.g||b.s-a.s||b.b-a.b||b.f-a.f||a.short.localeCompare(b.short));
+  rows.forEach((r,i)=>{const p=rows[i-1];r.rank=p&&p.g===r.g&&p.s===r.s&&p.b===r.b&&p.f===r.f?p.rank:i+1});
   return rows;
 }
 const MC={g:["#fff1a8","#e2b21c","#8a6400"],s:["#ffffff","#b9c0c9","#59626d"],b:["#ffc796","#c07a3c","#683a14"]};
 const medal=(k,n)=>n==null?medal0(k,n):`<span class="mc${n===0?" z":""}">${medal0(k,n)}<em>×${n}</em></span>`;
-const MN={g:"Gold",s:"Silver",b:"Bronze"};
-const MT={g:["#fff3a3","#ffd43b","#f2a900","#a86b00"],s:["#ffffff","#e6eaef","#b4bcc6","#6d7682"],b:["#ffd2a8","#f0a066","#c66a2c","#6f3511"]};
+const MN={g:"Gold",s:"Silver",b:"Bronze",f:"4th"};
+const MT={g:["#fff3a3","#ffd43b","#f2a900","#a86b00"],s:["#ffffff","#e6eaef","#b4bcc6","#6d7682"],b:["#ffd2a8","#f0a066","#c66a2c","#6f3511"],f:["#e0e0e0","#b0b0b0","#808080","#505050"]};
 const SP="M0-7 1.6-1.6 7 0 1.6 1.6 0 7-1.6 1.6-7 0-1.6-1.6Z";
 const LGS=`<svg class="lgs" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(88 12)"><path class="spk" d="${SP}" fill="#fff"/></g><g transform="translate(6 40) scale(.6)"><path class="spk d1" d="${SP}" fill="#fff"/></g><g transform="translate(84 86) scale(.75)"><path class="spk d2" d="${SP}" fill="#ff6a00"/></g></svg>`;
 $("plogo").src=LOGO.prisaa;$("psp").outerHTML=LGS;
@@ -248,21 +249,21 @@ const medal0=(k,n)=>{const[l,m,d,x]=MT[k];return `<svg class="medal ${k}${n===0?
 <g transform="translate(24 54) scale(.55)"><path class="spk d2" d="${SP}" fill="#fff"/></g>
 </svg>`};
 const pl=id=>id?`<span class="pl"><img src="${LOGO[id]}" alt="">${esc(S[id].short)}</span>`:`<span class="pl empty">—</span>`;
-["g","s","b"].forEach(k=>$("h"+k).innerHTML=medal(k,null));
+["g","s","b","f"].forEach(k=>$("h"+k).innerHTML=medal(k,null));
 const evName=e=>e.div?`${esc(e.sport)}<small>${esc(e.div)}</small>`:esc(e.sport);
 
 function render(){
   const rows=tally();const any=rows.some(r=>r.tot);
-  $("board").innerHTML=rows.map(r=>`<tr class="${any&&r.rank===1?"lead":""}"><td class="rk">${r.rank}</td><td><div class="sch"><img src="${LOGO[r.id]}" alt="${esc(r.short)} seal"><div><b>${esc(r.short)}</b><span>${esc(r.name)}</span></div></div></td><td class="num">${medal("g",r.g)}</td><td class="num">${medal("s",r.s)}</td><td class="num">${medal("b",r.b)}</td><td class="tot"><span class="totp">${r.tot}<small>${r.tot===1?"medal":"medals"}</small></span></td></tr>`).join("");
+  $("board").innerHTML=rows.map(r=>`<tr class="${any&&r.rank===1?"lead":""}"><td class="rk">${r.rank}</td><td><div class="sch"><img src="${LOGO[r.id]}" alt="${esc(r.short)} seal"><div><b>${esc(r.short)}</b><span>${esc(r.name)}</span></div></div></td><td class="num">${medal("g",r.g)}</td><td class="num">${medal("s",r.s)}</td><td class="num">${medal("b",r.b)}</td><td class="num">${medal("f",r.f)}</td><td class="tot"><span class="totp">${r.tot}<small>${r.tot===1?"medal":"medals"}</small></span></td></tr>`).join("");
   const lgs=LGS;
   const _x=`<svg class="lgs" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(88 12)"><path class="spk" d="${SP}" fill="#fff"/></g><g transform="translate(6 40) scale(.6)"><path class="spk d1" d="${SP}" fill="#fff"/></g><g transform="translate(84 86) scale(.75)"><path class="spk d2" d="${SP}" fill="#ff6a00"/></g></svg>`;
-  $("podium").innerHTML=any?`<div class="podium">${[1,0,2].map(i=>{const r=rows[i];return `<div class="pod p${i+1}"><div class="crest"><span class="lg"><img src="${LOGO[r.id]}" alt="${esc(r.short)}"></span>${lgs}</div><div class="nm">${esc(r.short)}</div><div class="mini">${["g","s","b"].map(k=>medal(k,r[k])).join("")}</div><div class="blk">${r.rank}</div></div>`}).join("")}</div>`:`<div class="podEmpty">The podium fills in as soon as the first event is decided.</div>`;
+  $("podium").innerHTML=any?`<div class="podium">${[1,0,2].map(i=>{const r=rows[i];return `<div class="pod p${i+1}"><div class="crest"><span class="lg"><img src="${LOGO[r.id]}" alt="${esc(r.short)}"></span>${lgs}</div><div class="nm">${esc(r.short)}</div><div class="mini">${["g","s","b","f"].map(k=>medal(k,r[k])).join("")}</div><div class="blk">${r.rank}</div></div>`}).join("")}</div>`:`<div class="podEmpty">The podium fills in as soon as the first event is decided.</div>`;
   const done=EVENTS.filter(e=>R[e.id]&&R[e.id].g).length;
   $("done").textContent=done;$("all").textContent=EVENTS.length;$("prog").style.width=(done/EVENTS.length*100)+"%";
   $("upd").textContent=updatedAt?"Updated "+new Date(updatedAt).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
   let html="",last="";
   for(const e of EVENTS){if(e.sport!==last){if(last)html+="</div>";html+=`<div class="sport"><h3>${esc(e.sport)}</h3>`;last=e.sport}
-    const r=R[e.id]||{};html+=`<div class="ev"><div class="nm">${e.div?esc(e.div):"Event"}</div>${["g","s","b"].map(k=>`<div class="act">${medal(k,null)}${pl(r[k])}</div>`).join("")}</div>`}
+    const r=R[e.id]||{};html+=`<div class="ev"><div class="nm">${e.div?esc(e.div):"Event"}</div>${["g","s","b","f"].map(k=>`<div class="act">${medal(k,null)}${pl(r[k])}</div>`).join("")}</div>`}
   $("resList").innerHTML=html+"</div>";
   renderAdmin();
 }
@@ -272,7 +273,7 @@ function renderAdmin(){
   let html="",last="";
   for(const e of EVENTS){if(e.sport!==last){if(last)html+="</div>";html+=`<div class="sport"><h3>${esc(e.sport)}</h3>`;last=e.sport}
     const r=R[e.id]||{};const dis=canWrite?"":" disabled";
-    html+=`<div class="ev" data-e="${e.id}"><div class="nm">${e.div?esc(e.div):"Event"}</div>${["g","s","b"].map(k=>`<label class="act">${medal(k,null)}<select data-k="${k}" aria-label="${{g:"Gold",s:"Silver",b:"Bronze"}[k]} – ${esc(e.sport+" "+e.div)}"${dis}>${opts(r[k])}</select></label>`).join("")}</div>`}
+    html+=`<div class="ev" data-e="${e.id}"><div class="nm">${e.div?esc(e.div):"Event"}</div>${["g","s","b","f"].map(k=>`<label class="act">${medal(k,null)}<select data-k="${k}" aria-label="${{g:"Gold",s:"Silver",b:"Bronze",f:"4th"}[k]} – ${esc(e.sport+" "+e.div)}"${dis}>${opts(r[k])}</select></label>`).join("")}</div>`}
   $("admList").innerHTML=html+"</div>";
 }
 
@@ -292,7 +293,7 @@ $("admList").addEventListener("change",ev=>{
   const row=sel.closest(".ev");const id=row.dataset.e;
   const x={};row.querySelectorAll("select").forEach(s=>x[s.dataset.k]=s.value);
   row.querySelector(".warn")?.remove();
-  const picked=[x.g,x.s,x.b].filter(Boolean);
+  const picked=[x.g,x.s,x.b,x.f].filter(Boolean);
   if(new Set(picked).size!==picked.length){row.insertAdjacentHTML("beforeend",`<div class="warn">A school can win only one medal per event. Change one of the picks.</div>`);return}
   const next={...R};if(picked.length)next[id]=x;else delete next[id];
   sel.blur();save(next,"Saved");
@@ -310,8 +311,8 @@ function route(){const v=(location.hash||"#tally").slice(1);const ok=["tally","r
   document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+ok));}
 addEventListener("hashchange",route);route();
 
-const toCSV=()=>{const L=["Event,Division,Gold,Silver,Bronze"];for(const e of EVENTS){const r=R[e.id]||{};L.push([e.sport,e.div,r.g?S[r.g].short:"",r.s?S[r.s].short:"",r.b?S[r.b].short:""].map(v=>`"${v}"`).join(","))}
-  L.push("","Rank,School,Gold,Silver,Bronze,Total");for(const r of tally())L.push([r.rank,`"${r.short}"`,r.g,r.s,r.b,r.tot].join(","));return L.join("\n")};
+const toCSV=()=>{const L=["Event,Division,Gold,Silver,Bronze,4th"];for(const e of EVENTS){const r=R[e.id]||{};L.push([e.sport,e.div,r.g?S[r.g].short:"",r.s?S[r.s].short:"",r.b?S[r.b].short:"",r.f?S[r.f].short:""].map(v=>`"${v}"`).join(","))}
+  L.push("","Rank,School,Gold,Silver,Bronze,4th,Total");for(const r of tally())L.push([r.rank,`"${r.short}"`,r.g,r.s,r.b,r.f,r.tot].join(","));return L.join("\n")};
 const copy=t=>navigator.clipboard.writeText(t).then(()=>toast("Copied")).catch(()=>{$("dataTxt").value=t;$("dataTxt").select();toast("Select all and copy manually")});
 $("expBtn").onclick=()=>{$("dataTxt").value=JSON.stringify({r:R,at:updatedAt},null,1);$("mData").classList.add("on")};
 $("closeData").onclick=()=>$("mData").classList.remove("on");
@@ -322,6 +323,10 @@ $("resetBtn").onclick=()=>$("mReset").classList.add("on");
 $("noReset").onclick=()=>$("mReset").classList.remove("on");
 $("yesReset").onclick=()=>{$("mReset").classList.remove("on");save({},"All results cleared")};
 $("projBtn").onclick=()=>{document.body.classList.add("proj");try{document.documentElement.requestFullscreen().catch(()=>{})}catch(_){}};
+let podiumVisible=false;
+function syncPodToggle(){$("podToggle").textContent=podiumVisible?"Hide podium":"Show podium"}
+$("podToggle").onclick=()=>{podiumVisible=!podiumVisible;$("podium").hidden=!podiumVisible;syncPodToggle();try{localStorage.setItem("prisaa-podium",podiumVisible?"1":"0")}catch(_){}};
+try{podiumVisible=localStorage.getItem("prisaa-podium")==="1";$("podium").hidden=!podiumVisible}catch(_){}syncPodToggle();
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.body.classList.remove("proj");document.querySelectorAll(".modal").forEach(m=>m.classList.remove("on"))}});
 document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement)document.body.classList.remove("proj")});
 document.body.addEventListener("dblclick",()=>document.body.classList.contains("proj")&&document.body.classList.remove("proj"));
