@@ -277,15 +277,17 @@ function renderAdmin(){
   $("admList").innerHTML=html+"</div>";
 }
 
+const API="https://script.google.com/macros/s/AKfycbwE2_RdciIRuFI08U1NeTE7kJOamZ1prmmP0oINUdopbBiXZ68wfYQ4jySfZqu-yuFn/exec";
+let CRED=null;try{CRED=JSON.parse(sessionStorage.getItem("prisaa-cred")||"null")}catch(_){}
+let pending=0;
+const post=b=>fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(b)}).then(r=>r.json());
+const rowsOf=r=>EVENTS.filter(e=>r[e.id]).map(e=>{const x=r[e.id];return [e.id,e.sport,e.div||"",x.g||"",x.s||"",x.b||"",x.f||""]});
 function save(next,msg){
-  const body={r:next,at:Date.now()};
-  if(mode==="db"){
-    writing=writing.then(()=>ref.set(body)).then(()=>msg&&toast(msg)).catch(err=>{
-      if(err&&err.code==="invalid_argument"){canWrite=false;setAdminNote(false);toast("You don't have permission to edit results")}
-      else toast("Save failed — try again");
-    });
-  }else{try{localStorage.setItem("prisaa-tally",JSON.stringify(body))}catch(_){}msg&&toast(msg)}
-  R=next;updatedAt=body.at;render();
+  const prev=R;R=next;updatedAt=Date.now();render();pending++;
+  writing=writing.then(()=>post({action:"save",u:CRED&&CRED.u,h:CRED&&CRED.h,rows:rowsOf(next)})).then(j=>{
+    if(j&&j.ok){updatedAt=j.at||updatedAt;msg&&toast(msg)}
+    else{R=prev;toast(j&&j.error==="auth"?"Session expired — log in again":"Save failed — try again");if(j&&j.error==="auth")logout()}
+  }).catch(()=>{R=prev;toast("Save failed — check connection")}).finally(()=>{pending--;render()});
 }
 
 $("admList").addEventListener("change",ev=>{
@@ -301,7 +303,7 @@ $("admList").addEventListener("change",ev=>{
 
 function setAdminNote(ok){
   $("adminNote").textContent=ok
-    ?(mode==="db"?"Pick the gold, silver and bronze school for each event. Changes save as you pick and update the standings for everyone viewing this page.":"Offline mode: results are saved in this browser only. Use Export / import to move them to another device.")
+    ?(mode==="db"?"Pick the gold, silver, bronze and 4th-place school for each event. Changes save to the Google Sheet as you pick; viewers see them within 15 seconds.":"Offline mode: results are saved in this browser only. Use Export / import to move them to another device.")
     :"View only. Only the page owner and editors can enter results.";
   $("resetBtn").disabled=!ok;$("impBtn").disabled=!ok;renderAdmin();
 }
@@ -331,57 +333,54 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.body.class
 document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement)document.body.classList.remove("proj")});
 document.body.addEventListener("dblclick",()=>document.body.classList.contains("proj")&&document.body.classList.remove("proj"));
 
-let CFG=null,cfgRef=null,authed=false,setup=false;
-try{authed=sessionStorage.getItem("prisaa-admin")==="1"}catch(_){}
+let HAS=false,authed=!!CRED,setup=false;
 async function hsh(u,p){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("prisaa-2026|"+u.trim().toLowerCase()+"|"+p));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
 function showAuth(){
-  const creating=!CFG||setup;
-  $("login").hidden=authed&&!setup;$("adminBody").hidden=!authed||setup;
-  $("loginTitle").textContent=creating?(CFG?"Change admin log-in":"Create admin log-in"):"Admin log-in";
+  const creating=!HAS||setup;
+  $("login").hidden=authed&&!creating;$("adminBody").hidden=!authed||creating;
+  $("loginTitle").textContent=creating?(HAS?"Change admin log-in":"Create admin log-in"):"Admin log-in";
   $("loginHint").textContent=creating?"Set the username and password used to open the admin panel.":"Sign in to enter medal results.";
   $("lp2w").hidden=!creating;$("lp2").required=creating;$("loginBtn").textContent=creating?"Save log-in":"Log in";
   $("lp").autocomplete=creating?"new-password":"current-password";
 }
-function setCfg(c){CFG=c&&c.u&&c.h?{u:String(c.u),h:String(c.h)}:null;showAuth()}
+function keep(){try{CRED?sessionStorage.setItem("prisaa-cred",JSON.stringify(CRED)):sessionStorage.removeItem("prisaa-cred")}catch(_){}}
+function logout(){authed=false;CRED=null;keep();$("lu").value="";showAuth()}
 $("loginForm").addEventListener("submit",async ev=>{
-  ev.preventDefault();const u=$("lu").value,p=$("lp").value;$("loginMsg").textContent="";
-  if(!crypto.subtle){$("loginMsg").textContent="This browser can't log in securely.";return}
-  if(!CFG||setup){
-    if(u.trim().length<3||p.length<6){$("loginMsg").textContent="Use at least 3 characters for the username and 6 for the password.";return}
-    if(p!==$("lp2").value){$("loginMsg").textContent="Passwords don't match.";return}
-    const c={u:u.trim(),h:await hsh(u,p)};
-    try{if(mode==="db")await cfgRef.set(c);else localStorage.setItem("prisaa-admin-cfg",JSON.stringify(c))}
-    catch(e){$("loginMsg").textContent=e&&e.code==="invalid_argument"?"Only the page owner or editors can set the log-in.":"Couldn't save — try again.";return}
-    setup=false;CFG=c;authed=true;toast("Log-in saved");
-  }else{
-    if(u.trim().toLowerCase()!==CFG.u.toLowerCase()||await hsh(u,p)!==CFG.h){$("loginMsg").textContent="Wrong username or password.";$("lp").value="";return}
-    authed=true;toast("Logged in");
-  }
-  try{sessionStorage.setItem("prisaa-admin","1")}catch(_){}
-  $("lp").value=$("lp2").value="";showAuth();
+  ev.preventDefault();const u=$("lu").value,p=$("lp").value,m=$("loginMsg");m.textContent="";
+  if(!crypto.subtle){m.textContent="This browser can't log in securely.";return}
+  $("loginBtn").disabled=true;
+  try{
+    const h=await hsh(u,p);
+    if(!HAS||setup){
+      if(u.trim().length<3||p.length<6){m.textContent="Use at least 3 characters for the username and 6 for the password.";return}
+      if(p!==$("lp2").value){m.textContent="Passwords don't match.";return}
+      const j=await post({action:"setCfg",u:u.trim(),h,ou:CRED&&CRED.u,oh:CRED&&CRED.h}).catch(()=>null);
+      if(!j||!j.ok){m.textContent=j&&j.error==="auth"?"Log in with the current account first.":"Couldn't save — try again.";return}
+      HAS=true;setup=false;toast("Log-in saved");
+    }else{
+      const j=await post({action:"login",u,h}).catch(()=>null);
+      if(!j){m.textContent="Can't reach the server — try again.";return}
+      if(!j.ok){m.textContent="Wrong username or password.";$("lp").value="";return}
+      toast("Logged in");
+    }
+    CRED={u:u.trim(),h};authed=true;keep();$("lp").value=$("lp2").value="";showAuth();
+  }finally{$("loginBtn").disabled=false}
 });
-$("outBtn").onclick=()=>{authed=false;try{sessionStorage.removeItem("prisaa-admin")}catch(_){}$("lu").value="";showAuth();toast("Logged out");location.hash="#tally"};
+$("outBtn").onclick=()=>{logout();toast("Logged out");location.hash="#tally"};
 $("chgBtn").onclick=()=>{setup=true;showAuth()};
 showAuth();
 
-function goLocal(){mode="local";canWrite=true;try{const j=JSON.parse(localStorage.getItem("prisaa-tally")||"null");if(j){R=clean(j.r);updatedAt=j.at||null}}catch(_){}
-  $("stat").textContent="Offline mode (this device)";$("dot").className="dot";try{setCfg(JSON.parse(localStorage.getItem("prisaa-admin-cfg")||"null"))}catch(_){setCfg(null)}setAdminNote(true);render()}
-
-render();
-(async()=>{
-  const c=window.claude;if(!c||!c.use){goLocal();return}
-  let db=null;try{db=await c.use("db")}catch(_){}
-  if(!db){goLocal();return}
-  mode="db";ref=db.doc("tally/results");cfgRef=db.doc("tally/config");
-  cfgRef.onSnapshot(s=>setCfg(s.exists?s.data():null),()=>{});
-  try{const u=await c.use("user");if(u&&u.canEdit){const ok=await u.canEdit();if(ok===false)canWrite=false}}catch(_){}
-  setAdminNote(canWrite);
-  const timer=setTimeout(()=>{$("stat").textContent="Can't reach live data yet — showing last known";},10000);
-  ref.onSnapshot(snap=>{
-    if(!snap.metadata.fromCache){clearTimeout(timer);$("stat").textContent="Live";$("dot").className="dot live"}
-    const d=snap.exists?snap.data():null;R=clean(d&&d.r);updatedAt=d&&d.at||null;render();
-  },err=>{clearTimeout(timer);$("stat").textContent="Live data unavailable";$("dot").className="dot"});
-})();
+async function load(){
+  try{
+    const j=await fetch(API+"?t="+Date.now()).then(r=>r.json());if(!j||!j.ok)throw 0;
+    HAS=!!j.hasCfg;if(!setup)showAuth();
+    if(!pending){R=clean(j.r);updatedAt=j.at||null;render()}
+    $("stat").textContent="Live";$("dot").className="dot live";
+  }catch(_){$("stat").textContent="Can't reach live data — retrying";$("dot").className="dot"}
+}
+mode="db";canWrite=true;setAdminNote(true);render();load();
+setInterval(()=>{if(!document.hidden)load()},15000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
 }
 </script>
 </body>
