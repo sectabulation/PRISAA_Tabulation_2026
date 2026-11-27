@@ -247,7 +247,7 @@ const SCHOOLS=[
 ];
 const S=Object.fromEntries(SCHOOLS.map(s=>[s.id,s]));
 const MW=["Men","Women"];
-const RACKET=["Men's Singles","Men's Doubles","Women's Singles","Women's Doubles","Mixed Doubles"];
+const RACKET=["Men's Singles A","Men's Singles B","Men's Doubles","Women's Singles A","Women's Singles B","Women's Doubles"];
 const SPORTS=[
   ["Basketball 5x5",MW],["Basketball 3x3",MW],["Volleyball",MW],["Sepak Takraw",[""]],
   ["Table Tennis",RACKET],["Badminton",RACKET],["Chess",MW],["Dance Sport",["Latin","Standard"]],
@@ -255,7 +255,7 @@ const SPORTS=[
   ["Oration",[""]],["Vocal Solo",[""]],["Vocal Duet",[""]],["Mutya",[""]]
 ];
 const EVENTS=[];
-SPORTS.forEach(([sp,divs])=>divs.forEach(d=>EVENTS.push({id:(sp+"-"+d).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/-$/,""),sport:sp,div:d})));
+SPORTS.forEach(([sp,divs])=>divs.forEach(d=>EVENTS.push({id:(sp+"-"+d.replace(/ Singles A$/," Singles")).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/-$/,""),sport:sp,div:d})));
 
 let R={};let updatedAt=null;let mode="local";let canWrite=true;let ref=null;let writing=Promise.resolve();
 const $=id=>document.getElementById(id);
