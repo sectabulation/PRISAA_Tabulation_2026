@@ -346,7 +346,6 @@ $("admList").addEventListener("change",ev=>{
   const x={};row.querySelectorAll("select").forEach(s=>x[s.dataset.k]=s.value);
   row.querySelector(".warn")?.remove();
   const picked=[x.g,x.s,x.b,x.f].filter(Boolean);
-  if(new Set(picked).size!==picked.length){row.insertAdjacentHTML("beforeend",`<div class="warn">A school can win only one medal per event. Change one of the picks.</div>`);return}
   x.n=cnt(id);const next={...R};if(picked.length||x.n>1)next[id]=x;else delete next[id];
   sel.blur();save(next,"Saved");
 });
