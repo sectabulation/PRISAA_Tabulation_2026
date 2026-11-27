@@ -165,6 +165,7 @@ html{-webkit-text-size-adjust:100%}
   .totp{font-size:18px;padding:3px 7px}
   .pl{font-size:14px;gap:6px}.pl img{width:22px;height:22px}
 }
+.cnt{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}.cnt[hidden]{display:none}.cnt button{min-height:36px;min-width:36px;padding:0;font-size:20px;line-height:1}.cnt b{min-width:26px;text-align:center;font:800 20px "Barlow Condensed",sans-serif}.cnt small{display:inline;color:var(--mut);font-size:12px;font-weight:400}
 </style>
 </head>
 <body>
@@ -257,17 +258,19 @@ const SPORTS=[
 const EVENTS=[];
 SPORTS.forEach(([sp,divs])=>divs.forEach(d=>EVENTS.push({id:(sp+"-"+d.replace(/ Singles A$/," Singles")).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/-$/,""),sport:sp,div:d})));
 
-let R={};let updatedAt=null;let mode="local";let canWrite=true;let ref=null;let writing=Promise.resolve();
+let CV=1;let R={};let updatedAt=null;let mode="local";let canWrite=true;let ref=null;let writing=Promise.resolve();
 const $=id=>document.getElementById(id);
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const toast=m=>{const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2200)};
 const valid=id=>id&&S[id]?id:"";
 
-function clean(raw){const o={};if(raw&&typeof raw==="object")for(const e of EVENTS){const r=raw[e.id];if(r&&typeof r==="object"){const x={g:valid(r.g),s:valid(r.s),b:valid(r.b),f:valid(r.f)};if(x.g||x.s||x.b||x.f)o[e.id]=x}}return o}
+function clean(raw){const o={};if(raw&&typeof raw==="object")for(const e of EVENTS){const r=raw[e.id];if(r&&typeof r==="object"){const x={g:valid(r.g),s:valid(r.s),b:valid(r.b),f:valid(r.f),n:cnum(r.n)};if(x.g||x.s||x.b||x.f||x.n>1)o[e.id]=x}}return o}
+function cnum(v){v=parseInt(v,10);return v>0?Math.min(v,99):1}
+const cnt=id=>cnum((R[id]||{}).n);
 
 function tally(){
   const t=Object.fromEntries(SCHOOLS.map(s=>[s.id,{g:0,s:0,b:0,f:0}]));
-  for(const e of EVENTS){const r=R[e.id];if(!r)continue;for(const k of["g","s","b","f"])if(r[k])t[r[k]][k]++}
+  for(const e of EVENTS){const r=R[e.id];if(!r)continue;const n=cnum(r.n);for(const k of["g","s","b","f"])if(r[k])t[r[k]][k]+=n}
   const rows=SCHOOLS.map(s=>({...s,...t[s.id],tot:t[s.id].g+t[s.id].s+t[s.id].b+t[s.id].f}));
   rows.sort((a,b)=>b.g-a.g||b.s-a.s||b.b-a.b||b.f-a.f||a.short.localeCompare(b.short));
   rows.forEach((r,i)=>{const p=rows[i-1];r.rank=p&&p.g===r.g&&p.s===r.s&&p.b===r.b&&p.f===r.f?p.rank:i+1});
@@ -310,7 +313,7 @@ function render(){
   $("upd").textContent=updatedAt?"Updated "+new Date(updatedAt).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
   let html="",last="";
   for(const e of EVENTS){if(e.sport!==last){if(last)html+="</div>";html+=`<div class="sport"><h3>${esc(e.sport)}</h3>`;last=e.sport}
-    const r=R[e.id]||{};html+=`<div class="ev"><div class="nm">${e.div?esc(e.div):"Event"}</div>${["g","s","b","f"].map(k=>`<div class="act">${medal(k,null)}${pl(r[k])}</div>`).join("")}</div>`}
+    const r=R[e.id]||{};html+=`<div class="ev"><div class="nm">${e.div?esc(e.div):"Event"}${cnt(e.id)>1?`<small>${cnt(e.id)} medals per place</small>`:""}</div>${["g","s","b","f"].map(k=>`<div class="act">${medal(k,null)}${pl(r[k])}</div>`).join("")}</div>`}
   $("resList").innerHTML=html+"</div>";
   renderAdmin();
 }
@@ -320,7 +323,7 @@ function renderAdmin(){
   let html="",last="";
   for(const e of EVENTS){if(e.sport!==last){if(last)html+="</div>";html+=`<div class="sport"><h3>${esc(e.sport)}</h3>`;last=e.sport}
     const r=R[e.id]||{};const dis=canWrite?"":" disabled";
-    html+=`<div class="ev" data-e="${e.id}"><div class="nm">${e.div?esc(e.div):"Event"}</div>${["g","s","b","f"].map(k=>`<label class="act">${medal(k,null)}<select data-k="${k}" aria-label="${{g:"Gold",s:"Silver",b:"Bronze",f:"4th"}[k]} – ${esc(e.sport+" "+e.div)}"${dis}>${opts(r[k])}</select></label>`).join("")}</div>`}
+    const n=cnt(e.id);html+=`<div class="ev" data-e="${e.id}"><div class="nm">${e.div?esc(e.div):"Event"}<div class="cnt"${CV<2?" hidden":""}><button type="button" data-d="-1" aria-label="Fewer medals per place"${dis||(n<=1?" disabled":"")}>−</button><b>${n}</b><button type="button" data-d="1" aria-label="More medals per place"${dis||(n>=99?" disabled":"")}>+</button><small>medals per place</small></div></div>${["g","s","b","f"].map(k=>`<label class="act">${medal(k,null)}<select data-k="${k}" aria-label="${{g:"Gold",s:"Silver",b:"Bronze",f:"4th"}[k]} – ${esc(e.sport+" "+e.div)}"${dis}>${opts(r[k])}</select></label>`).join("")}</div>`}
   $("admList").innerHTML=html+"</div>";
 }
 
@@ -328,7 +331,7 @@ const API="https://script.google.com/macros/s/AKfycbwE2_RdciIRuFI08U1NeTE7kJOamZ
 let CRED=null;try{CRED=JSON.parse(sessionStorage.getItem("prisaa-cred")||"null")}catch(_){}
 let pending=0;
 const post=b=>fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(b)}).then(r=>r.json());
-const rowsOf=r=>EVENTS.filter(e=>r[e.id]).map(e=>{const x=r[e.id];return [e.id,e.sport,e.div||"",x.g||"",x.s||"",x.b||"",x.f||""]});
+const rowsOf=r=>EVENTS.filter(e=>r[e.id]).map(e=>{const x=r[e.id];const row=[e.id,e.sport,e.div||"",x.g||"",x.s||"",x.b||"",x.f||""];if(CV>=2)row.push(cnum(x.n));return row});
 function save(next,msg){
   const prev=R;R=next;updatedAt=Date.now();render();pending++;
   writing=writing.then(()=>post({action:"save",u:CRED&&CRED.u,h:CRED&&CRED.h,rows:rowsOf(next)})).then(j=>{
@@ -344,13 +347,20 @@ $("admList").addEventListener("change",ev=>{
   row.querySelector(".warn")?.remove();
   const picked=[x.g,x.s,x.b,x.f].filter(Boolean);
   if(new Set(picked).size!==picked.length){row.insertAdjacentHTML("beforeend",`<div class="warn">A school can win only one medal per event. Change one of the picks.</div>`);return}
-  const next={...R};if(picked.length)next[id]=x;else delete next[id];
+  x.n=cnt(id);const next={...R};if(picked.length||x.n>1)next[id]=x;else delete next[id];
   sel.blur();save(next,"Saved");
+});
+$("admList").addEventListener("click",ev=>{
+  const b=ev.target.closest(".cnt button");if(!b||b.disabled)return;
+  const id=b.closest(".ev").dataset.e;const cur=R[id]||{g:"",s:"",b:"",f:""};
+  const n=cnum(cnum(cur.n)+Number(b.dataset.d));if(n===cnum(cur.n))return;
+  const x={...cur,n};const next={...R};if(x.g||x.s||x.b||x.f||n>1)next[id]=x;else delete next[id];
+  b.blur();save(next,n+" medals per place");
 });
 
 function setAdminNote(ok){
   $("adminNote").textContent=ok
-    ?(mode==="db"?"Pick the gold, silver, bronze and 4th-place school for each event. Changes save to the Google Sheet as you pick; viewers see them within 15 seconds.":"Offline mode: results are saved in this browser only. Use Export / import to move them to another device.")
+    ?(mode==="db"?"Pick the gold, silver, bronze and 4th-place school for each event. Use − / + to set how many medals each place earns (e.g. 5 for a 5-player team). Changes save to the Google Sheet; viewers see them within 15 seconds.":"Offline mode: results are saved in this browser only. Use Export / import to move them to another device.")
     :"View only. Only the page owner and editors can enter results.";
   $("resetBtn").disabled=!ok;$("impBtn").disabled=!ok;renderAdmin();
 }
@@ -360,7 +370,7 @@ function route(){const v=(location.hash||"#tally").slice(1);const ok=["tally","r
   document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+ok));}
 addEventListener("hashchange",route);route();
 
-const toCSV=()=>{const L=["Event,Division,Gold,Silver,Bronze,4th"];for(const e of EVENTS){const r=R[e.id]||{};L.push([e.sport,e.div,r.g?S[r.g].short:"",r.s?S[r.s].short:"",r.b?S[r.b].short:"",r.f?S[r.f].short:""].map(v=>`"${v}"`).join(","))}
+const toCSV=()=>{const L=["Event,Division,Medals per place,Gold,Silver,Bronze,4th"];for(const e of EVENTS){const r=R[e.id]||{};L.push([e.sport,e.div,cnt(e.id),r.g?S[r.g].short:"",r.s?S[r.s].short:"",r.b?S[r.b].short:"",r.f?S[r.f].short:""].map(v=>`"${v}"`).join(","))}
   L.push("","Rank,School,Gold,Silver,Bronze,4th,Total");for(const r of tally())L.push([r.rank,`"${r.short}"`,r.g,r.s,r.b,r.f,r.tot].join(","));return L.join("\n")};
 const copy=t=>navigator.clipboard.writeText(t).then(()=>toast("Copied")).catch(()=>{$("dataTxt").value=t;$("dataTxt").select();toast("Select all and copy manually")});
 $("expBtn").onclick=()=>{$("dataTxt").value=JSON.stringify({r:R,at:updatedAt},null,1);$("mData").classList.add("on")};
@@ -420,7 +430,7 @@ showAuth();
 async function load(){
   try{
     const j=await fetch(API+"?t="+Date.now()).then(r=>r.json());if(!j||!j.ok)throw 0;
-    HAS=!!j.hasCfg;if(!setup)showAuth();
+    HAS=!!j.hasCfg;if(!setup)showAuth();CV=j.v||1;
     if(!pending){R=clean(j.r);updatedAt=j.at||null;render()}
     $("stat").textContent="Live";$("dot").className="dot live";
   }catch(_){$("stat").textContent="Can't reach live data — retrying";$("dot").className="dot"}
