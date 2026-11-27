@@ -115,10 +115,56 @@ textarea{width:100%;min-height:120px;font:13px/1.4 ui-monospace,monospace;paddin
 .toast.on{opacity:1}
 @media(prefers-reduced-motion:reduce){.toast{transition:none}}
 @media(max-width:700px){.ev{grid-template-columns:repeat(2,minmax(0,1fr))}.ev .nm{grid-column:1/-1}.board th.hide,.board td.hide{display:none}.board td.num{width:auto}}
-@media(max-width:420px){.ev{grid-template-columns:minmax(0,1fr)}.sch span{display:none}}
+
 body.proj nav,body.proj .status,body.proj #tallyExtra,body.proj .top .sub{display:none}body.proj main{padding-top:2vh}
 body.proj .board td{padding:2.2vh 10px}body.proj .board td.rk{font-size:min(9vh,80px)}body.proj .board td.num .medal{width:min(10vh,90px)}
 body.proj .sch img{width:min(12vh,110px);height:min(12vh,110px)}body.proj .sch b{font-size:min(6vh,54px)}
+
+/* RESPONSIVE: phones and small tablets */
+html{-webkit-text-size-adjust:100%}
+.board{table-layout:auto}
+@media(max-width:700px){
+  .top{padding:16px 0 10px;gap:10px}
+  .top h1{font-size:30px}
+  .brand img{width:52px;height:52px}
+  nav{gap:4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav a{padding:8px 12px;font-size:14px;white-space:nowrap;min-height:40px}
+  main{padding:16px 0 48px}
+  .board th{padding:8px 3px;font-size:12px}
+  .board th .medal{width:18px}
+  .board td{padding:10px 3px}
+  .board td.rk{font-size:26px;width:auto}
+  .board td.num{width:auto}
+  .board td.num .medal{width:28px}
+  .mc em{font-size:14px}
+  .sch{gap:8px}
+  .sch img{width:36px;height:36px}
+  .sch b{font-size:18px}
+  .sch span{display:none}
+  .totp{padding:4px 9px;font-size:20px;border-width:2px}
+  .totp small{display:none}
+  .meta{font-size:13px;gap:10px}
+  h2{font-size:26px}
+  .sport h3{font-size:20px}
+  .ev{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .ev .nm{grid-column:1/-1}
+  .adminHead h2{font-size:24px}
+  .tools button{flex:1 1 auto}
+  .podium{gap:6px}
+  .pod .mini{gap:2px}.pod .mini .medal{width:22px}.pod .mc em{font-size:12px}
+  .modal>div{padding:16px}
+}
+@media(max-width:380px){
+  .top h1{font-size:26px}
+  .board td.num .medal{width:22px}
+  .board th .medal{width:16px}
+  .board td.rk{font-size:22px}
+  .sch img{width:28px;height:28px}
+  .sch b{font-size:16px}
+  .totp{font-size:18px;padding:3px 7px}
+  .pl{font-size:14px;gap:6px}.pl img{width:22px;height:22px}
+}
 </style>
 </head>
 <body>
